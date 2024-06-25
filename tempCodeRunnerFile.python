@@ -1,64 +1,54 @@
 import random
-import os
-import re
 
+# List of words to choose from
+words = ["python", "hangman", "computer", "programming", "challenge"]
 
-def check_play_status():
-    valid_responses = ['yes', 'no']
-    while True:
-        try:
-            response = input('Do you wish to play again? (Yes or No): ')
-            if response.lower() not in valid_responses:
-                raise ValueError('Yes or No only')
+# Function to choose a random word
+def choose_word():
+    return random.choice(words)
 
-            if response.lower() == 'yes':
-                return True
-            else:
-                os.system('cls' if os.name == 'nt' else 'clear')
-                print('Thanks for playing!')
-                exit()
-
-        except ValueError as err:
-            print(err)
-
-
-def play_rps():
-    play = True
-    while play:
-        os.system('cls' if os.name == 'nt' else 'clear')
-        print('')
-        print('Rock, Paper, Scissors - Shoot!')
-
-        user_choice = input('Choose your weapon [R]ock, [P]aper, or [S]cissors: ')
-
-        if not re.match("[SsRrPp]", user_choice):
-            print('Please choose a letter:')
-            print('[R]ock, [P]aper, or [S]cissors')
-            continue
-
-        print(f'You chose: {user_choice}')
-
-        choices = ['R', 'P', 'S']
-        opp_choice = random.choice(choices)
-
-        print(f'I chose: {opp_choice}')
-
-        if opp_choice == user_choice.upper():
-            print('Tie!')
-            play = check_play_status()
-        elif opp_choice == 'R' and user_choice.upper() == 'S':
-            print('Rock beats scissors, I win!')
-            play = check_play_status()
-        elif opp_choice == 'S' and user_choice.upper() == 'P':
-            print('Scissors beats paper! I win!')
-            play = check_play_status()
-        elif opp_choice == 'P' and user_choice.upper() == 'R':
-            print('Paper beats rock, I win!')
-            play = check_play_status()
+# Function to display the current state of the word with blanks
+def display_word(word, guessed_letters):
+    display = ""
+    for letter in word:
+        if letter in guessed_letters:
+            display += letter
         else:
-            print('You win!\n')
-            play = check_play_status()
+            display += "_"
+    return display
 
+# Function to play Hangman
+def play_hangman():
+    word_to_guess = choose_word()
+    guessed_letters = []
+    attempts = 6
 
-if __name__ == '__main__':
-    play_rps()
+    print("Welcome to Hangman!")
+
+    while attempts > 0:
+        print("\nWord: " + display_word(word_to_guess, guessed_letters))
+        print("Attempts left:", attempts)
+
+        guess = input("Guess a letter: ").lower()
+
+        if len(guess) == 1 and guess.isalpha():
+            if guess in guessed_letters:
+                print("You've already guessed that letter.")
+            elif guess in word_to_guess:
+                print("Good guess!")
+                guessed_letters.append(guess)
+                if set(word_to_guess).issubset(set(guessed_letters)):
+                    print("Congratulations! You've guessed the word:", word_to_guess)
+                    break
+            else:
+                print("Wrong guess!")
+                guessed_letters.append(guess)
+                attempts -= 1
+        else:
+            print("Invalid input. Please enter a single letter.")
+
+    if attempts == 0:
+        print("You ran out of attempts. The word was:", word_to_guess)
+
+# Start the game
+play_hangman()
